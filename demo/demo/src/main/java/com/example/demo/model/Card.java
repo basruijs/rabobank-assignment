@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.aspectj.bridge.Message;
 
+import java.math.BigDecimal;
+
 
 @Getter
 @Setter
@@ -17,16 +19,21 @@ import org.aspectj.bridge.Message;
 @Entity
 public class Card {
     @Id
-    private Long cardNr;
-    private String expirationDate;
-    private boolean isCreditCard;
-    //Balance in cents, so there won't be any rounding shenanigans with doubles
-    private int balance;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
+    private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private CardType cardType;
+
+    @OneToOne
+    private Account account;
 
 
 
     public String withdrawMoney(int amount){
         String message;
+        int balance = account.getAccountBalance();
         if(balance <= 0){
             message="You cannot withdraw money when you have 0 balance.";
             return message;
@@ -34,18 +41,26 @@ public class Card {
         if(amount>0) {
             double onePercent = (double) amount / 100;
 
-            if (!isCreditCard || balance - amount - onePercent >= 0) {
-                if (balance - amount < 0) {
-                    amount = balance;
+            if (balance - amount >= 0) {
+
+                if(cardType == CardType.CREDIT_CARD){
+                    if((int) (balance - onePercent) - amount >=0){
+                        balance = (int) (balance - onePercent) - amount;
+                        message = "You withdrew " + centsToEuros(amount) + " Balance is now " + centsToEuros(balance) +
+                                ". You were charged " + onePercent + " extra for use of a credit card.";
+                        ;
+                    } else {
+                        message = "There is not enough balance in your account to make this withdrawal";
+                    }
+                } else {
+                    balance = balance - amount;
+                    message = "You withdrew " + centsToEuros(amount) + " Balance is now " + centsToEuros(balance) + ".";
                 }
-                balance = balance - amount;
-                if(isCreditCard){
-                    balance = (int) (balance - onePercent);
-                }
-                message = "You withdrew " + centsToEuros(amount) + " Balance is now " + centsToEuros(balance) + ".";
+                account.setAccountBalance(balance);
+
 
             } else {
-                message = "There is not enough money to charge the additional 1% for use of creditcard in your account";
+                message = "There is not enough balance in your account to make this withdrawal";
             }
         } else {
             message = "Withdrawal amount has to be greater than 0";
@@ -54,21 +69,24 @@ public class Card {
     }
 
     public String depositMoney(int amount){
+        int balance = account.getAccountBalance();
         String message;
         double onePercent = (double) amount / 100;
 
         if(amount>0){
-            if(isCreditCard){
+            if(cardType == CardType.CREDIT_CARD){
                 balance = (int) (balance - onePercent);
             }
             balance = balance + amount;
             message = "You deposited " + centsToEuros(amount) + " Balance is now " + centsToEuros(balance) + ".";
+            account.setAccountBalance(balance);
 
         } else {
             message = "Deposit amount has to be greater than 0";
 
         }
         System.out.println(message);
+        System.out.println(getBalance());
         return message;
     }
 
@@ -83,5 +101,9 @@ public class Card {
             centsString.insert(centsString.length() - 2, '.');
         }
         return centsString.toString();
+    }
+
+    public int getBalance(){
+        return account.getAccountBalance();
     }
 }

@@ -2,13 +2,14 @@ package com.example.demo.controller;
 
 
 import com.example.demo.model.Card;
-import com.example.demo.services.CardService;
+import com.example.demo.service.CardService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-//@CrossOrigin
 @RequestMapping("/api/card")
+@Slf4j
 public class CardController {
     @Autowired
     CardService cardService;

@@ -1,4 +1,4 @@
-package com.example.demo.services;
+package com.example.demo.service;
 
 import com.example.demo.model.Card;
 import com.example.demo.repository.CardRepository;
@@ -19,8 +19,8 @@ public class CardService {
         return cardRepository.findAll();
     }
 
-    public int getCardBalance(Long cardNr) {
-        return cardRepository.findByCardNr(cardNr).get().getBalance();
+    public int getCardBalance(Long id) {
+        return cardRepository.findById(id).get().getBalance();
 //        return Optional.of(card.getBalance());
 
     }
@@ -33,7 +33,7 @@ public class CardService {
         if (!cardRepository.existsById(id)) {
             return null;
         }
-        Card oldCard = cardRepository.findByCardNr(id).get();
+        Card oldCard = cardRepository.findById(id).get();
 
         String message = oldCard.depositMoney(amount);
 
@@ -45,7 +45,7 @@ public class CardService {
         if (!cardRepository.existsById(id)) {
             return null;
         }
-        Card oldCard = cardRepository.findByCardNr(id).get();
+        Card oldCard = cardRepository.findById(id).get();
 
         String message = oldCard.withdrawMoney(amount);
 
