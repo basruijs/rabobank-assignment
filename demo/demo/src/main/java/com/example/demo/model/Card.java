@@ -39,25 +39,14 @@ public class Card {
             return message;
         }
         if(amount>0) {
-            double onePercent = (double) amount / 100;
-
             if (balance - amount >= 0) {
-
                 if(cardType == CardType.CREDIT_CARD){
-                    if((int) (balance - onePercent) - amount >=0){
-                        balance = (int) (balance - onePercent) - amount;
-                        message = "You withdrew " + centsToEuros(amount) + " Balance is now " + centsToEuros(balance) +
-                                ". You were charged " + onePercent + " extra for use of a credit card.";
-                        ;
-                    } else {
-                        message = "There is not enough balance in your account to make this withdrawal";
-                    }
+                    message = withdrawCreditcard(amount, balance);
                 } else {
                     balance = balance - amount;
                     message = "You withdrew " + centsToEuros(amount) + " Balance is now " + centsToEuros(balance) + ".";
+                    account.setAccountBalance(balance);
                 }
-                account.setAccountBalance(balance);
-
 
             } else {
                 message = "There is not enough balance in your account to make this withdrawal";
@@ -65,6 +54,20 @@ public class Card {
         } else {
             message = "Withdrawal amount has to be greater than 0";
         }
+        return message;
+    }
+
+    private String withdrawCreditcard(int amount, int balance){
+        double onePercent = (double) amount / 100;
+        String message;
+        if((int) (balance - onePercent) - amount >=0){
+            balance = (int) (balance - onePercent) - amount;
+            message = "You withdrew " + centsToEuros(amount) + " Balance is now " + centsToEuros(balance) +
+                    ". You were charged " + onePercent + " extra for use of a credit card.";
+        } else {
+            message = "There is not enough balance in your account to make this withdrawal";
+        }
+        account.setAccountBalance(balance);
         return message;
     }
 
