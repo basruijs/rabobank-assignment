@@ -74,6 +74,8 @@ public class CardService {
                     balance = balance - amount;
                     message = "You withdrew " + centsToEuros(amount) + " Balance is now " + centsToEuros(balance) + ".";
                     account.setAccountBalance(balance);
+                    cardRepository.save(card);
+
                 }
 
             } else {

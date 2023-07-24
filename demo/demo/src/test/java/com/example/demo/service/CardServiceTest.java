@@ -68,14 +68,14 @@ public class CardServiceTest {
     void preloadData() {
         AccountHolder accountHolder1 = createAccountHolder("1");
         accountHolderRepository.save(accountHolder1);
-        account1 = createAccount(accountHolder1, "2");
+        account1 = createAccount(accountHolder1, "1");
         account1 = accountRepository.save(account1);
         debitCard = createCard(account1, CardType.DEBIT_CARD, 1);
         debitCard = cardRepository.save(debitCard);
 
         AccountHolder accountHolder2 = createAccountHolder("2");
         accountHolderRepository.save(accountHolder2);
-        account2 = createAccount(accountHolder2, "1");
+        account2 = createAccount(accountHolder2, "2");
         account2 = accountRepository.save(account2);
         creditCard = createCard(account2, CardType.CREDIT_CARD, 2);
         creditCard = cardRepository.save(creditCard);
@@ -107,7 +107,7 @@ public class CardServiceTest {
     void testCreditWithdraw() {
         creditCard.getAccount().setAccountBalance(1000);
         cardService.withdrawMoneyFromCard(100, 1);
-        assertEquals(1000, creditCard.getBalance());
+        assertEquals(990, creditCard.getBalance());
     }
 
     @Test
